@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dora Birthday</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #74ebd5, #9face6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      color: #3F51B5;
+      margin-bottom: 10px;
+    }
+
+    .riddle {
+      font-size: 1.2em;
+      color: #333;
+      margin: 20px 0;
+    }
+
+    .letter-slots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .slot {
+        width: 36px;
+        height: 50px;
+        border-bottom: 2px solid #000;  /* ⬅ black underline */
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        color: #000;
+        pointer-events: none;
+    }
+
+
+    #hidden-input {
+      opacity: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    button {
+      background-color: #3F51B5;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #303F9F;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 1.1em;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .success {
+      color: green;
+      animation: popIn 0.4s ease-out forwards;
+    }
+
+    .error {
+      color: crimson;
+      display: block;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body onclick="focusInput()">
+
+  <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+  <div class="card">
+    <h1>🧩 Dora's Birthday Hunt - Day 1</h1>
+    <p class="riddle" id="riddle-text">
+        In a room where time runs slow,
+        Two men meet where memories flow.
+        One’s grown old, the other not,
+        A promise made is not forgot.<br><br>
+        
+        “Come back,” he says, “we had a deal…”
+        But the world feels like it isn't real.
+        To break the loop, the pact begun —
+        He reaches out and lifts the ______.<br><br>
+
+        The man who plays with dreams will help you.<br>
+    
+    </p>
+
+    <div class="letter-slots" id="slots"></div>
+
+    <input type="text" id="hidden-input" autocomplete="off" oninput="updateSlots()" />
+
+    <button onclick="checkAnswer()">Submit Answer</button>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    // 🟢 You provide these two values only
+    const answerLength = 9;
+    const correctHash = "79925aa78f281c9a65ed145c2e19c7992e28a1a1d15c00044e8d3e83df48c737"; // SHA-256 of "piano"
+
+    const input = document.getElementById("hidden-input");
+    const slotsContainer = document.getElementById("slots");
+
+    function focusInput() {
+      input.focus();
+    }
+
+    function renderSlots() {
+      slotsContainer.innerHTML = '';
+      input.setAttribute("maxlength", answerLength);
+      for (let i = 0; i < answerLength; i++) {
+        const div = document.createElement("div");
+        div.className = "slot";
+        div.id = `s${i}`;
+        slotsContainer.appendChild(div);
+      }
+    }
+
+    function updateSlots() {
+      const val = input.value.toUpperCase();
+      for (let i = 0; i < answerLength; i++) {
+        const slot = document.getElementById(`s${i}`);
+        slot.textContent = val[i] || "_";
+      }
+    }
+
+    async function checkAnswer() {
+      const value = input.value.trim().toLowerCase();
+      const message = document.getElementById("message");
+
+      if (value.length !== answerLength) {
+        showMessage(`Please enter a ${answerLength}-letter word.`, "error");
+        return;
+      }
+
+      const hash = await sha256(value);
+      if (hash === correctHash) {
+        showMessage("🎉 Congratulations! That's correct!, Wait for next puzzle", "success");
+        launchConfetti();
+      } else {
+        showMessage("❌ Wrong answer. Try again!", "error");
+      }
+    }
+
+    function showMessage(text, type) {
+      const el = document.getElementById("message");
+      el.textContent = text;
+      el.className = `message ${type}`;
+      el.style.display = "block";
+      el.style.opacity = "1";
+    }
+
+    function launchConfetti() {
+      const duration = 2 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2 };
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+
+        confetti(Object.assign({}, defaults, {
+          particleCount: 50,
+          origin: {
+            x: Math.random(),
+            y: Math.random() - 0.2
+          }
+        }));
+      }, 200);
+    }
+
+    async function sha256(str) {
+      const buffer = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // INIT
+    window.onload = () => {
+      renderSlots();
+      updateSlots();
+      focusInput();
+    };
+  </script>
+</body>
+</html>
