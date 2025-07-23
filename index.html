@@ -118,20 +118,18 @@
   <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
 
   <div class="card">
-    <h1>🧩 Dora's Birthday Hunt - Day 1</h1>
+    <h1>🧩 Dora's Birthday Hunt - 2</h1>
     <p class="riddle" id="riddle-text">
-        In a room where time runs slow,
-        Two men meet where memories flow.
-        One’s grown old, the other not,
-        A promise made is not forgot.<br><br>
-        
-        “Come back,” he says, “we had a deal…”
-        But the world feels like it isn't real.
-        To break the loop, the pact begun —
-        He reaches out and lifts the ______.<br><br>
-
-        The man who plays with dreams will help you.<br>
-    
+      I’m the sister of the man who never rests on Saturdays,
+      Known to the world as Naveen Babu in other ways.
+      I'm a seeker of truth, I roam paths untold,
+      One day I crossed a soul, silent and cold.<br><br>
+      
+      To trace his roots and answer the call,
+      I sifted through silence, through records and all.
+      In my pursuit, I reached a place once famed ______<br><br>
+      Not for what it sells, but for what it claimed.
+      Where did I go to know where he came?<br><br>
     </p>
 
     <div class="letter-slots" id="slots"></div>
@@ -145,8 +143,9 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     // 🟢 You provide these two values only
-    const answerLength = 9;
-    const correctHash = "79925aa78f281c9a65ed145c2e19c7992e28a1a1d15c00044e8d3e83df48c737"; // SHA-256 of "piano"
+    // https://emn178.github.io/online-tools/sha256.html
+    const answerLength = 4;
+    const correctHash = "a405eba78bf2e6db44ebe0b28bbc9cdc449f9ac990d2029c50a15e6853cfdf20"; // SHA-256 of "piano"
 
     const input = document.getElementById("hidden-input");
     const slotsContainer = document.getElementById("slots");
